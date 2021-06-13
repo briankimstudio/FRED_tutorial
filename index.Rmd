@@ -1,0 +1,109 @@
+---
+title: "FRED Tutorial"
+author: ""
+date: "6/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## How to use FRED dataset in R
+
+### Load library
+
+Load libraries for accessing FRED website, manipulating data, and visualizing output.
+
+```{r, message=F}
+library(fredr)
+library(ggplot2)
+library(tidyverse)
+```
+
+To download data from [FRED website](https://fred.stlouisfed.org/), we need to create an account first, then acquire an API key for accessing [FRED API](https://fred.stlouisfed.org/docs/api/fred/). The API key must be set using **fredr_set_key()** function before using **fredr** function.
+
+```
+fredr_set_key("YOUR_API_KEY")
+```
+
+### Single series
+
+#### Import data into R directly
+
+**fredr** function retrieve data specified in **series_id**, convert them into table-like format.
+
+```{r}
+dataset <- fredr(
+  series_id = "UNRATE",
+  observation_start = as.Date("1990-01-01"),
+  observation_end = as.Date("2000-01-01")
+)
+```
+
+#### Inspect data
+
+The data consist of 5 columns and 121 observations.
+
+```{r}
+str(dataset)
+```
+
+The data are sorted by **date**.
+
+```{r}
+dataset %>% head(10)
+```
+
+The column **value** indicates unemployment rate. Let's calculate n, max, min, mean, and median of unemployment rate.
+
+```{r}
+dataset %>% summarize(n=n(), max=max(value), min=min(value), mean = mean(value), median=median(value))
+```
+
+#### Plot data 
+
+Let's draw line chart of unemployment rate using **ggplot** package.
+
+```{r}
+dataset %>%
+  ggplot(aes(x=date,y=value)) +
+  labs(title="Unemployment rate in USA", x="Year",y="%") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_date(date_breaks = "year" , date_labels = "%Y") +
+  geom_line()
+```
+
+### Multiple serieses
+
+#### Import data
+
+In this case, we import multiple series: unemployment rate and job openings.
+
+```{r}
+dataset <- map_dfr(c("UNRATE", "JTSJOL"), fredr)
+dataset
+```
+
+For visualization, we modify table into wider format, where each series become a separte column.
+
+```{r}
+dataset_wider <- dataset %>%
+  select(date,series_id,value) %>% pivot_wider(names_from="series_id", values_from="value")
+dataset_wider
+```
+
+#### Plot data
+
+```{r}
+dataset_wider %>% 
+  drop_na() %>%
+  ggplot(aes(x=date)) +
+  geom_line( aes(y=UNRATE), color="red") + # Divide by 10 to get the same range than the temperature
+  geom_line( aes(y=JTSJOL/1000), color="blue") + 
+  scale_y_continuous(
+    name = "Unemployment rate",
+    sec.axis = sec_axis(~.*1000,name="Job openings")) +
+  theme(axis.title.y.left = element_text(colour = "red"),
+        axis.title.y.right = element_text(colour = "blue"))
+```
