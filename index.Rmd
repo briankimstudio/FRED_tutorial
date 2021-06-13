@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Load library
 
-Load libraries for accessing FRED website, manipulating data, and visualizing output.
+Load libraries for [accessing FRED website](https://sboysel.github.io/fredr//index.html), manipulating data, and visualizing output.
 
 ```{r, message=F}
 library(fredr)
