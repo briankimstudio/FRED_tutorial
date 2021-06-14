@@ -60,17 +60,28 @@ fredr("HLTHSCEXPHCSA")
 
 library(purrr)
 
+#
+# Multiple series with identical unit
+#
 map_dfr(c("UNRATE", "JTSJOL"), fredr) %>%
   ggplot(data = ., mapping = aes(x = date, y = value, color = series_id)) +
   geom_line() +
   labs(x = "Observation Date", y = "Rate", color = "Series")
 
-dataset <- fredr(
-  series_id = c("UNRATE", "JTSJOL"),
-  observation_start = as.Date("1990-01-01"),
-  observation_end = as.Date("2000-01-01")
-)
+#
+# Multiple series with identical unit
+#
+map_dfr(c("UNRATE", "LRUNTTTTKRM156S"), fredr) %>%
+  ggplot(aes(x = date, y = value, color = series_id)) +
+  geom_line(size=1) +
+  labs(title="Unemployment rate", x = "Observation Date", y = "Rate", color = "Series") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_discrete(name="Country",labels = c("Korea", "USA"))
 
+
+#
+# Multiple series with different unit
+#
 dataset <- map_dfr(c("UNRATE", "JTSJOL"), fredr)
 dataset_wider <- dataset %>%
   select(date,series_id,value) %>% pivot_wider(names_from="series_id", values_from="value")

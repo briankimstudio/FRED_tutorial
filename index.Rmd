@@ -11,14 +11,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## How to use FRED dataset in R
 
+[FRED website](https://fred.stlouisfed.org/) provides various statistics that scholars can utilize in conducting their research. But, it is cumbersome to download data in xls format and import into R for further analysis. So, this tutorial presents a guide on how to import these data easily. With [**fredr**](https://sboysel.github.io/fredr/index.html) package, we can import data into R directly from FRED website.
+
 ### Load library
 
-Load libraries for [accessing FRED website](https://sboysel.github.io/fredr//index.html), manipulating data, and visualizing output.
+Load libraries for [accessing FRED website](https://sboysel.github.io/fredr/index.html), manipulating data, and visualizing output.
 
 ```{r, message=F}
 library(fredr)
-library(ggplot2)
 library(tidyverse)
+library(ggplot2)
 ```
 
 To download data from [FRED website](https://fred.stlouisfed.org/), we need to create an account first, then acquire an API key for accessing [FRED API](https://fred.stlouisfed.org/docs/api/fred/). The API key must be set using **fredr_set_key()** function before using **fredr** function.
@@ -31,7 +33,7 @@ fredr_set_key("YOUR_API_KEY")
 
 #### Import data into R directly
 
-**fredr** function retrieve data specified in **series_id**, convert them into table-like format.
+**fredr** function retrieve data specified in **series_id**, convert them into table-like format. The range of data are specified in **observation_start** and **observation_end**.
 
 ```{r}
 dataset <- fredr(
@@ -63,7 +65,7 @@ dataset %>% summarize(n=n(), max=max(value), min=min(value), mean = mean(value),
 
 #### Plot data 
 
-Let's draw line chart of unemployment rate using **ggplot** package.
+Draw line chart of unemployment rate using **ggplot** package.
 
 ```{r}
 dataset %>%
@@ -74,7 +76,34 @@ dataset %>%
   geom_line()
 ```
 
-### Multiple serieses
+### Multiple serieses with identical unit
+
+If we compare two series by plotting them in a single chart, use **map_dfr** to import both series simultaneously. For example, we can compare unemployment rate between Korea and USA.
+
+#### Import data
+
+Acronym referring to unemployment rate in Korea is available at [FRED website].(https://fred.stlouisfed.org/series/LRUNTTTTKRM156S)
+
+```{r}
+dataset <- map_dfr(c("UNRATE", "LRUNTTTTKRM156S"), fredr)
+```
+
+#### Plot data
+
+When we draw line chart, we need to modify the label of legend to reflect the meaning of each series
+
+```{r}
+dataset %>%
+  ggplot(aes(x = date, y = value, color = series_id)) +
+  geom_line(size=1) +
+  labs(title="Unemployment rate", x = "Observation Date", y = "Rate", color = "Series") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_discrete(name="Country",labels = c("Korea", "USA"))
+```
+
+
+
+### Multiple serieses with different unit
 
 #### Import data
 
@@ -85,7 +114,7 @@ dataset <- map_dfr(c("UNRATE", "JTSJOL"), fredr)
 dataset
 ```
 
-For visualization, we modify table into wider format, where each series become a separte column.
+For visualization, we modify table into wider format, where each series become a separate column.
 
 ```{r}
 dataset_wider <- dataset %>%
@@ -93,13 +122,17 @@ dataset_wider <- dataset %>%
 dataset_wider
 ```
 
+Now **UNRATE** and **JTSJOL* became separate column. This conversion is just to make visualization easy.
+
 #### Plot data
+
+Since the unit of **UNRATE** and **JTSJOL** is different, a secondary y axes is added to the right of graph.
 
 ```{r}
 dataset_wider %>% 
   drop_na() %>%
   ggplot(aes(x=date)) +
-  geom_line( aes(y=UNRATE), color="red") + # Divide by 10 to get the same range than the temperature
+  geom_line( aes(y=UNRATE), color="red") + 
   geom_line( aes(y=JTSJOL/1000), color="blue") + 
   scale_y_continuous(
     name = "Unemployment rate",
