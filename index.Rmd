@@ -11,7 +11,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## How to use FRED dataset in R
 
-[FRED website](https://fred.stlouisfed.org/) provides various statistics that scholars can utilize in conducting their research. But, it is cumbersome to download data in xls format and import into R for further analysis. So, this tutorial presents a guide on how to import these data easily. With [**fredr**](https://sboysel.github.io/fredr/index.html) package, we can import data into R directly from FRED website.
+[FRED(Federal Reserve Economic Data) website](https://fred.stlouisfed.org/) provides various economic data that scholars can utilize in conducting their research. But, it is cumbersome to download data in Excel format and import into R for further analysis. So, this tutorial presents a guide on how to import these data easily. With [**fredr**](https://sboysel.github.io/fredr/index.html) package, we can import data into R directly from FRED website.
+
+This tutorial consists of thee parts as follow.
+
++ Import data into R (ex: unemployment rate in USA)
++ Multiple data with similar unit (ex: unemployment rate in Korea and USA)
++ Multiple data with different unit (ex: unemployment rate and job openings)
 
 ### Load library
 
@@ -33,7 +39,7 @@ fredr_set_key("YOUR_API_KEY")
 
 #### Import data into R directly
 
-**fredr** function retrieve data specified in **series_id**, convert them into table-like format. The range of data are specified in **observation_start** and **observation_end**.
+In this example, we import data of unemployment rate in USA into R. Each data is associated with an unique id and we need to specify it to import. The id of unemployment rate in USA is **UNRATE**. In the following R code, **fredr** function retrieve data specified in **series_id**, convert them into table-like format. The range of data are specified in **observation_start** and **observation_end**.
 
 ```{r}
 dataset <- fredr(
@@ -122,7 +128,7 @@ dataset_wider <- dataset %>%
 dataset_wider
 ```
 
-Now **UNRATE** and **JTSJOL* became separate column. This conversion is just to make visualization easy.
+Now **UNRATE** and **JTSJOL** became separate column. And it can be visualized easily with **ggplot2**.
 
 #### Plot data
 
