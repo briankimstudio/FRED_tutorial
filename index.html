@@ -242,7 +242,7 @@ library(ggplot2)</code></pre>
 <p>If we compare two series by plotting them in a single chart, use <strong>map_dfr</strong> to import both series simultaneously. For example, we can compare unemployment rate between Korea and USA.</p>
 <div id="import-data" class="section level4">
 <h4>Import data</h4>
-<p>Acronym referring to unemployment rate in Korea is available at [FRED website].(<a href="https://fred.stlouisfed.org/series/LRUNTTTTKRM156S" class="uri">https://fred.stlouisfed.org/series/LRUNTTTTKRM156S</a>)</p>
+<p>Acronym referring to unemployment rate in Korea is available at <a href="https://fred.stlouisfed.org/series/LRUNTTTTKRM156S">FRED website</a>.</p>
 <pre class="r"><code>dataset &lt;- map_dfr(c(&quot;UNRATE&quot;, &quot;LRUNTTTTKRM156S&quot;), fredr)</code></pre>
 </div>
 <div id="plot-data-1" class="section level4">

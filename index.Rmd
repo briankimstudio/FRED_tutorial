@@ -82,7 +82,7 @@ If we compare two series by plotting them in a single chart, use **map_dfr** to 
 
 #### Import data
 
-Acronym referring to unemployment rate in Korea is available at [FRED website].(https://fred.stlouisfed.org/series/LRUNTTTTKRM156S)
+Acronym referring to unemployment rate in Korea is available at [FRED website](https://fred.stlouisfed.org/series/LRUNTTTTKRM156S).
 
 ```{r}
 dataset <- map_dfr(c("UNRATE", "LRUNTTTTKRM156S"), fredr)
